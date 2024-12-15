@@ -24,7 +24,7 @@ public class SqlRun {
 
     @Autowired
     private ThreadPoolTaskExecutor threadPoolTaskExecutor;
-    @PostConstruct
+//    @PostConstruct
     public void test() {
         for (int i = 0; i < 4; i++) {
 //            AtomicLong atomicLong = new AtomicLong(0);

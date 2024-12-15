@@ -4,12 +4,13 @@ import com.tinet.pushtest.model.ReceptionRecords;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Component
@@ -19,33 +20,33 @@ public class Run {
     private ReceptionRecordsServiceImpl receptionRecordsService;
 
     @Autowired
-    private ThreadPoolTaskExecutor threadPoolTaskExecutor;
-
-    @Autowired
-    private InfluxDBService influxDBService;
+    private MetricsService metricsService;
 
     // 用于存储已生成的session_unique_id
-    private final Set<String> sessionIds = new HashSet<>();
     private final Random random = new Random();
 
 //    @PostConstruct
     public void test() {
-        // Generate and save 1000 records
         AtomicLong atomicLong = new AtomicLong(0);
-        for (int i = 0; i < 20; i++) {
-            threadPoolTaskExecutor.submit(() -> {
-                while (atomicLong.getAndIncrement() < 1000_0000) {
-                    try {
-                        ReceptionRecords entity = generateRandomReceptionRecord();
-                        receptionRecordsService.save(entity);
-//                        influxDBService.insertData(entity);
-                        // 不使用事务插入
-                        log.info("已生成{}条数据", atomicLong.get());
-                    } catch (Exception e) {
-                        log.error("插入数据失败", e);
+        // 使用虚拟线程执行器
+        try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
+            // 提交20个任务
+            for (int i = 0; i < 100; i++) {
+                executor.submit(() -> {
+                    while (atomicLong.getAndIncrement() < 1000_0000) {
+                        try {
+                            ReceptionRecords entity = generateRandomReceptionRecord();
+                            receptionRecordsService.save(entity);
+                            metricsService.incrementInsertCount();
+//                            log.info("已生成{}条数据", atomicLong.get());
+                        } catch (Exception e) {
+                            log.error("插入数据失败", e);
+                        }
                     }
-                }
-            });
+                });
+            }
+            // 等待所有任务完成
+            executor.shutdown();
         }
     }
 

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>TPM监控</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .metrics-container {
+            width: 800px;
+            margin: 20px auto;
+            font-family: "Microsoft YaHei", "微软雅黑", sans-serif;
+        }
+        .metrics-info {
+            font-size: 16px;
+            margin: 20px 0;
+        }
+        .metrics-info p {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="metrics-container">
+        <h2>实时TPM监控（每分钟事务数）</h2>
+        <canvas id="tpmChart"></canvas>
+        <div class="metrics-info">
+            <p>当前TPM：<span id="currentTpm">0</span></p>
+            <p>总插入数：<span id="totalInserts">0</span></p>
+            <p>最后更新时间：<span id="lastUpdateTime">-</span></p>
+        </div>
+    </div>
+
+    <script>
+        const ctx = document.getElementById('tpmChart').getContext('2d');
+        const tpmChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'TPM（每分钟事务数）',
+                    data: [],
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: '每分钟事务数'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: '时间'
+                        }
+                    }
+                },
+                animation: {
+                    duration: 0
+                }
+            }
+        });
+
+        function updateMetrics() {
+            fetch('/api/metrics/history')
+                .then(response => response.json())
+                .then(history => {
+                    // 清空现有数据
+                    tpmChart.data.labels = [];
+                    tpmChart.data.datasets[0].data = [];
+                    
+                    // 更新图表数据
+                    history.forEach(record => {
+                        const timeString = new Date(record.timestamp).toLocaleTimeString();
+                        tpmChart.data.labels.push(timeString);
+                        tpmChart.data.datasets[0].data.push(record.count);
+                    });
+                    
+                    // 更新当前值
+                    if (history.length > 0) {
+                        const latest = history[history.length - 1];
+                        document.getElementById('currentTpm').textContent = latest.count;
+                        document.getElementById('totalInserts').textContent = latest.totalCount;
+                        document.getElementById('lastUpdateTime').textContent = 
+                            new Date(latest.timestamp).toLocaleString();
+                    }
+                    
+                    tpmChart.update();
+                });
+        }
+
+        // 页面加载时立即执行一次
+        updateMetrics();
+        // 每分钟更新一次数据
+        setInterval(updateMetrics, 60000);
+    </script>
+</body>
+</html> 

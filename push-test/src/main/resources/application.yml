@@ -2,7 +2,7 @@ server:
    port: 8083
 spring:
    datasource:
-    url: jdbc:postgresql://127.0.0.1:1922/chat
+    url: jdbc:postgresql://127.0.0.1:1921/chat
     username: clink_plus
     password: Z8Vx6KOokwJtWnsC
     driver-class-name: org.postgresql.Driver

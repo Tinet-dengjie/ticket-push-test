@@ -1,0 +1,42 @@
+server:
+   port: 8083
+spring:
+   datasource:
+    url: jdbc:postgresql://127.0.0.1:1922/chat
+    username: clink_plus
+    password: Z8Vx6KOokwJtWnsC
+    driver-class-name: org.postgresql.Driver
+    hikari:
+     maximum-pool-size: 50
+
+ #mybatis-plus.configuration.log-impl=org.apache.ibatis.logging.stdout.StdOutImpl
+influxdb:
+  url: http://localhost:8086   # InfluxDB 地址
+  username: admin              # 用户名
+  password: admin              # 密码
+  database: session_event        # 数据库名
+livechat:
+    curl:
+        source:
+            tag: tt
+            topic: test
+rocketmq:
+  name-server: rmq-cn-vc24046op09.cn-hangzhou.rmq.aliyuncs.com:8080
+  #消费者配置
+  consumer:
+    group: GID_LIVECHAT_CURL_TEST
+    topic: test
+    access-key: 3ppQMwZgV0FJW03Q
+    secret-key: 25s5j5TJIyncAg5f
+  #生产者配置
+  producer:
+    access-key: 3ppQMwZgV0FJW03Q
+    secret-key: 25s5j5TJIyncAg5f
+    # 消息最大长度 默认 1024 * 1024 * 4 (4M)
+    # 发送消息超时时间，默认 3000
+    send-message-timeout: 3000
+    # 发送消息失败重试次数，默认2
+    retry-times-when-send-failed: 2
+    retry-times-when-send-async-failed: 2
+    group: GID_LIVECHAT_CURL_TEST
+  access-channel: CLOUD

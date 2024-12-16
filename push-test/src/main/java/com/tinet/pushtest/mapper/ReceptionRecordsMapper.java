@@ -10,6 +10,8 @@ import java.util.Map;
 @Repository
 public interface ReceptionRecordsMapper extends BaseMapper<ReceptionRecords> {
     Map<String, Object> simpleQuery(@Param("qno") String qno);
-    
+    Map<String, Object> simpleQueryRealTime(@Param("qno") String qno);
+
     Long complexQuery(@Param("qnos") String[] qnos, @Param("cnos") String[] cnos);
+    Long complexQueryRealTime(@Param("qnos") String[] qnos, @Param("cnos") String[] cnos);
 }

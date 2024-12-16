@@ -11,10 +11,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 @Service
 public class QueryMetricsService {
-    private final AtomicLong queryCount = new AtomicLong(0);
-    private final long startTime = System.currentTimeMillis();
-    private final ConcurrentLinkedQueue<Double> latencies = new ConcurrentLinkedQueue<>();
-    private static final int MAX_LATENCY_SAMPLES = 10000;
+    private static final AtomicLong queryCount = new AtomicLong(0);
+    private static volatile long startTime = System.currentTimeMillis();
+    private static final ConcurrentLinkedQueue<Double> latencies = new ConcurrentLinkedQueue<>();
+    private static final int MAX_LATENCY_SAMPLES = 120;
 
     public void recordLatency(double latencySeconds) {
         queryCount.incrementAndGet();
@@ -22,6 +22,12 @@ public class QueryMetricsService {
         while (latencies.size() > MAX_LATENCY_SAMPLES) {
             latencies.poll();
         }
+    }
+
+    public static void reset() {
+        queryCount.set(0);
+        startTime = System.currentTimeMillis();
+        latencies.clear();
     }
 
     public QueryMetrics getMetrics() {

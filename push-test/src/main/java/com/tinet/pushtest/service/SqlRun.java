@@ -6,6 +6,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * 类说明
@@ -25,12 +26,16 @@ public class SqlRun {
     @Autowired
     private QueryMetricsService queryMetricsService;
 
+    private static AtomicBoolean run1 = new AtomicBoolean(false);
+
     private final Random random = new Random();
 
-    public void simpleQuery() {
-        for (int i = 0; i < 4; i++) {
+    public void simpleQuery(boolean run) {
+        run1.set(run);
+        if(!run)return;
+        for (int i = 0; i < 50; i++) {
             threadPoolTaskExecutor.submit(()->{
-                while (true){
+                while (run1.get()){
                     try {
                         long timestart = System.currentTimeMillis();
                         long l = receptionRecordsService.simpleQuery(randomChoice(getArray(1000, "QNO")));
@@ -43,11 +48,31 @@ public class SqlRun {
             });
         }
     }
-
-    public void complexQuery() {
-        for (int i = 0; i < 20; i++) {
+    public void simpleQueryRealTime(boolean run) {
+        run1.set(run);
+        if(!run)return;
+        for (int i = 0; i < 50; i++) {
             threadPoolTaskExecutor.submit(()->{
-                while (true){
+                while (run1.get()){
+                    try {
+                        long timestart = System.currentTimeMillis();
+                        long l = receptionRecordsService.simpleQueryRealTime(randomChoice(getArray(1000, "QNO")));
+                        float selectCost = (float) (System.currentTimeMillis() - timestart) / 1000;
+                        queryMetricsService.recordLatency(selectCost);
+                    } catch (Exception e) {
+                        log.error("查询数据失败", e);
+                    }
+                }
+            });
+        }
+    }
+
+    public void complexQuery(boolean run) {
+        run1.set(run);
+        if(!run)return;
+        for (int i = 0; i < 6; i++) {
+            threadPoolTaskExecutor.submit(()->{
+                while (run1.get()){
                     try {
                         // 随机生成查询参数
                         String[] qnos = getRandomSubArray(getArray(1000, "QNO"), 20);
@@ -55,6 +80,29 @@ public class SqlRun {
                         
                         long timestart = System.currentTimeMillis();
                         long l = receptionRecordsService.complexQuery(qnos, cnos);
+                        float selectCost = (float) (System.currentTimeMillis() - timestart) / 1000;
+                        queryMetricsService.recordLatency(selectCost);
+                    } catch (Exception e) {
+                        log.error("复杂查询失败", e);
+                    }
+                }
+            });
+        }
+    }
+
+    public void complexQueryRealTime(boolean run) {
+        run1.set(run);
+        if(!run)return;
+        for (int i = 0; i < 50; i++) {
+            threadPoolTaskExecutor.submit(()->{
+                while (run1.get()){
+                    try {
+                        // 随机生成查询参数
+                        String[] qnos = getRandomSubArray(getArray(1000, "QNO"), 20);
+                        String[] cnos = getRandomSubArray(getArray(1000, "CNO"), 20);
+
+                        long timestart = System.currentTimeMillis();
+                        long l = receptionRecordsService.complexQueryRealtime(qnos, cnos);
                         float selectCost = (float) (System.currentTimeMillis() - timestart) / 1000;
                         queryMetricsService.recordLatency(selectCost);
                     } catch (Exception e) {

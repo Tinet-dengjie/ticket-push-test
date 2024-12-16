@@ -23,8 +23,15 @@ public class ReceptionRecordsServiceImpl extends ServiceImpl<ReceptionRecordsMap
         baseMapper.simpleQuery(qno);
         return 0;
     }
+    public long simpleQueryRealTime(String qno) {
+        baseMapper.simpleQueryRealTime(qno);
+        return 0;
+    }
 
     public long complexQuery(String[] qnos, String[] cnos) {
         return receptionRecordsMapper.complexQuery(qnos, cnos);
+    }
+    public long complexQueryRealtime(String[] qnos, String[] cnos) {
+        return receptionRecordsMapper.complexQueryRealTime(qnos, cnos);
     }
 }

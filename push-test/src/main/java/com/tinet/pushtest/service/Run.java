@@ -1,14 +1,11 @@
 package com.tinet.pushtest.service;
 
 import com.tinet.pushtest.model.ReceptionRecords;
-import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.HashSet;
 import java.util.Random;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
@@ -26,11 +23,10 @@ public class Run {
     private final Random random = new Random();
 
 //    @PostConstruct
-    public void test() {
+    public void doWrite() {
         AtomicLong atomicLong = new AtomicLong(0);
         // 使用虚拟线程执行器
         try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
-            // 提交20个任务
             for (int i = 0; i < 100; i++) {
                 executor.submit(() -> {
                     while (atomicLong.getAndIncrement() < 1000_0000) {
@@ -38,14 +34,12 @@ public class Run {
                             ReceptionRecords entity = generateRandomReceptionRecord();
                             receptionRecordsService.save(entity);
                             metricsService.incrementInsertCount();
-//                            log.info("已生成{}条数据", atomicLong.get());
                         } catch (Exception e) {
                             log.error("插入数据失败", e);
                         }
                     }
                 });
             }
-            // 等待所有任务完成
             executor.shutdown();
         }
     }
@@ -94,7 +88,7 @@ public class Run {
     private int generateSessionUniqueId(boolean forceNew) {
         // 有10%的概率生成一个新的session_unique_id
         if (random.nextDouble() < 0.8 || forceNew) {
-            return random.nextInt(100, 100000);
+            return random.nextInt(100, 10000);
         } else {
             // 否则，从已有的session_unique_id中随机选择一个
             return 0;

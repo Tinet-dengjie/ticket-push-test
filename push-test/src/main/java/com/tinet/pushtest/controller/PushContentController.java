@@ -1,8 +1,10 @@
 package com.tinet.pushtest.controller;
 
+import com.tinet.pushtest.service.QueryMetricsService;
 import com.tinet.pushtest.service.Run;
 import com.tinet.pushtest.service.SqlRun;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -70,16 +72,30 @@ public class PushContentController {
 
     @GetMapping("/doWriteData")
     public void doWriteData() {
-        run.test();
+        run.doWrite();
     }
 
     @GetMapping("/doSimpleQuery")
-    public void doSimpleQuery() {
-        sqlRun.simpleQuery();
+    public void doSimpleQuery(@Param("run") boolean run) {
+        QueryMetricsService.reset();
+        sqlRun.simpleQuery(run);
     }
 
     @GetMapping("/doComplexQuery")
-    public void doComplexQuery() {
-        sqlRun.complexQuery();
+    public void doComplexQuery(@Param("run") boolean run) {
+        QueryMetricsService.reset();
+        sqlRun.complexQuery(run);
+    }
+
+    @GetMapping("/doSimpleQueryReal")
+    public void doSimpleQueryReal(@Param("run") boolean run) {
+        QueryMetricsService.reset();
+        sqlRun.simpleQueryRealTime(run);
+    }
+
+    @GetMapping("/doComplexQueryReal")
+    public void doComplexQueryReal(@Param("run") boolean run) {
+        QueryMetricsService.reset();
+        sqlRun.complexQueryRealTime(run);
     }
 }

@@ -39,4 +39,14 @@ public class ReceptionRecords implements Serializable {
 
     private int session_complete;
 
+    private int realtime_session_count;
+
+    private int realtime_agent_session_count;
+
+    private int realtime_session_queued_count;
+
+    private int realtime_session_locked_count;
+
+    private int realtime_session_bot_count;
+
 }

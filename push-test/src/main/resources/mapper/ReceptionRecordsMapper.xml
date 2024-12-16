@@ -2,24 +2,33 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.tinet.pushtest.mapper.ReceptionRecordsMapper">
 
-    <select id="countFinish" resultType="java.util.Map">
-        select last(session_complete,time) as 会话完成数,
-               last(queue_abort,time)      as 排队放弃数,
-               last(queue_duration,time)   as 平均排队时长,
-               last(session_duration,time) as 平均会话时长
-        from session_event_new
-        where  enterprise_id = 8001678
-          and qno in ('QNO1','QNO2','QNO3','QNO4','QNO5','QNO6','QNO7','QNO8','QNO9','QNO10');
+    <select id="simpleQuery" resultType="java.util.Map">
+        select sum(session_complete) as 会话完成数,
+               sum(queue_abort)      as 排队放弃数,
+               avg(queue_duration)   as 平均排队时长,
+               avg(session_duration) as 平均会话时长
+        from
+            session_event_new
+        where
+            enterprise_id = 8001678
+          and
+            qno in (#{qno});
     </select>
 
-    <select id="countAvg" resultType="java.lang.Long">
-        select count(1), avg(duration)
-        from (select session_unique_id, last(duration_since_last_state, time) as duration
-              from reception_records
-              where
-                  reception_value in ('队列号C', '队列号B')
-                and reception_status = '结束会话'
-                and time > CURRENT_DATE
-              group by session_unique_id) as rrsui;
+    <select id="complexQuery" resultType="java.lang.Long">
+        select sum(session_complete) as 会话完成数,
+               sum(queue_abort)      as 排队放弃数,
+               avg(queue_duration)   as 平均排队时长,
+               avg(session_duration) as 平均会话时长
+        from session_event_new
+        where  time >= now() - interval '1 d' and enterprise_id = 8001678
+          and qno in 
+          <foreach collection="qnos" item="qno" open="(" separator="," close=")">
+            #{qno}
+          </foreach>
+          and cno in 
+          <foreach collection="cnos" item="cno" open="(" separator="," close=")">
+            #{cno}
+          </foreach>
     </select>
 </mapper>

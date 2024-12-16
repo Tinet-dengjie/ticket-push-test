@@ -1,14 +1,11 @@
 package com.tinet.pushtest.service;
 
-import com.google.common.util.concurrent.RateLimiter;
-import com.tinet.pushtest.model.ReceptionRecords;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.Random;
 
 /**
  * 类说明
@@ -24,55 +21,73 @@ public class SqlRun {
 
     @Autowired
     private ThreadPoolTaskExecutor threadPoolTaskExecutor;
-//    @PostConstruct
-    public void test() {
+
+    @Autowired
+    private QueryMetricsService queryMetricsService;
+
+    private final Random random = new Random();
+
+    public void simpleQuery() {
         for (int i = 0; i < 4; i++) {
-//            AtomicLong atomicLong = new AtomicLong(0);
             threadPoolTaskExecutor.submit(()->{
-//                RateLimiter rateLimiter = RateLimiter.create();
-                float duration = 0;
                 while (true){
-//                    rateLimiter.tryAcquire();
                     try {
                         long timestart = System.currentTimeMillis();
-                        long l = receptionRecordsService.countFinish();
+                        long l = receptionRecordsService.simpleQuery(randomChoice(getArray(1000, "QNO")));
                         float selectCost = (float) (System.currentTimeMillis() - timestart) / 1000;
-                        if(duration != 0){
-                            duration = (selectCost + duration) / 2;
-                        }else{
-                            duration = selectCost;
-                        }
-                        // 不使用事务插入
-                        log.info("完成回话查询平均耗时{}", duration);
+                        queryMetricsService.recordLatency(selectCost);
                     } catch (Exception e) {
-                        log.error("插入数据失败", e);
+                        log.error("查询数据失败", e);
                     }
                 }
             });
         }
-
     }
 
-//    @PostConstruct
-    public void main() {
+    public void complexQuery() {
         for (int i = 0; i < 20; i++) {
-            AtomicLong atomicLong = new AtomicLong(0);
             threadPoolTaskExecutor.submit(()->{
-                float duration = 0;
                 while (true){
-                    long timestart = System.currentTimeMillis();
-//                    long l = receptionRecordsService.countAvg();
-                    float selectCost = (float) (System.currentTimeMillis() - timestart) / 1000;
-                    if(duration != 0){
-                        duration = (selectCost + duration) / 2;
-                    }else{
-                        duration = selectCost;
+                    try {
+                        // 随机生成查询参数
+                        String[] qnos = getRandomSubArray(getArray(1000, "QNO"), 20);
+                        String[] cnos = getRandomSubArray(getArray(1000, "CNO"), 20);
+                        
+                        long timestart = System.currentTimeMillis();
+                        long l = receptionRecordsService.complexQuery(qnos, cnos);
+                        float selectCost = (float) (System.currentTimeMillis() - timestart) / 1000;
+                        queryMetricsService.recordLatency(selectCost);
+                    } catch (Exception e) {
+                        log.error("复杂查询失败", e);
                     }
-                    // 不使用事务插入
-                    log.info("平均回话查询平均耗时{}", duration);
                 }
             });
         }
     }
 
+    private String randomChoice(String[] options) {
+        int index = random.nextInt(options.length);
+        return options[index];
+    }
+
+    private String[] getArray(int size, String prefix) {
+        String[] strings = new String[size];
+        for (int j = 1; j <= size; j++) {
+            strings[j - 1] = prefix + j;
+        }
+        return strings;
+    }
+
+    private String[] getRandomSubArray(String[] source, int count) {
+        count = Math.min(count, source.length);
+        String[] result = new String[count];
+        // 使用Fisher-Yates洗牌算法随机选择元素
+        String[] temp = source.clone();
+        for (int i = 0; i < count; i++) {
+            int index = random.nextInt(temp.length - i);
+            result[i] = temp[index];
+            temp[index] = temp[temp.length - 1 - i];
+        }
+        return result;
+    }
 }

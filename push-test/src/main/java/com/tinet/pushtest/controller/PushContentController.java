@@ -1,10 +1,7 @@
 package com.tinet.pushtest.controller;
 
-import com.alibaba.fastjson2.JSONObject;
 import com.tinet.pushtest.service.Run;
-import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.Timer;
-import jakarta.annotation.PostConstruct;
+import com.tinet.pushtest.service.SqlRun;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -13,12 +10,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Map;
-import java.util.Random;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -33,6 +26,8 @@ public class PushContentController {
 //
     @Autowired
     private Run run;
+    @Autowired
+    private SqlRun sqlRun;
     public static String pushCpntent = "暂无数据";
     public static String pushTime = "暂无时间";
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -73,8 +68,18 @@ public class PushContentController {
         return "推送时间: \n" + pushTime + "\n" + "推送内容: \n" + pushCpntent;
     }
 
-    @GetMapping("/doRun")
-    public void dorun() {
+    @GetMapping("/doWriteData")
+    public void doWriteData() {
         run.test();
+    }
+
+    @GetMapping("/doSimpleQuery")
+    public void doSimpleQuery() {
+        sqlRun.simpleQuery();
+    }
+
+    @GetMapping("/doComplexQuery")
+    public void doComplexQuery() {
+        sqlRun.complexQuery();
     }
 }

@@ -1,7 +1,7 @@
 package com.tinet.pushtest.model;
 
-//import com.baomidou.mybatisplus.annotation.TableField;
-//import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
@@ -22,7 +22,8 @@ public class ReceptionRecords implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private LocalDateTime time;
+    @TableId(type = com.baomidou.mybatisplus.annotation.IdType.AUTO)
+    private Long id;
 
     private String qno;
 
@@ -30,23 +31,30 @@ public class ReceptionRecords implements Serializable {
 
     private String cno;
 
+    private String event;
 
-    private int queue_abort;
+    @TableField("queue_abort")
+    private Integer queue_abort;
 
-    private int queue_duration;
+    @TableField("queue_complete")
+    private Integer queue_duration;
 
-    private int session_duration;
+    @TableField("session_duration")
+    private Integer session_duration;
 
-    private int session_complete;
+    @TableField("session_complete")
+    private Integer session_complete;
 
-    private int realtime_session_count;
+    @TableField("realtime_session_count")
+    private Integer realtime_session_count;
 
-    private int realtime_agent_session_count;
-
-    private int realtime_session_queued_count;
-
-    private int realtime_session_locked_count;
-
-    private int realtime_session_bot_count;
+    @TableField("realtime_session_queued_count")
+    private Integer realtime_session_queued_count;
+    @TableField("realtime_session_locked_count")
+    private Integer realtime_session_locked_count;
+    @TableField("realtime_session_assigned_count")
+    private Integer realtime_session_assigned_count;
+    @TableField("realtime_session_robot_count")
+    private Integer realtime_session_robot_count;
 
 }

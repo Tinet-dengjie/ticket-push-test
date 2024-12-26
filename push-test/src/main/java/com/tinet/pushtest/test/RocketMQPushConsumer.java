@@ -22,7 +22,7 @@ public class RocketMQPushConsumer {
      * 如果实例类型为Serverless实例，公网访问必须设置实例的用户名密码，当开启内网免身份识别时，内网访问可以不设置用户名和密码。
      */
     private static RPCHook getAclRPCHook() {
-        return new AclClientRPCHook(new SessionCredentials("3ppQMwZgV0FJW03Q", "25s5j5TJIyncAg5f"));
+        return new AclClientRPCHook(new SessionCredentials("8Is3hW0b0ipC6i0o", "49YT4viNZQa57cEG"));
     }
 
     public static void main(String[] args) throws MQClientException {
@@ -31,7 +31,7 @@ public class RocketMQPushConsumer {
         // 使用VPC接入点时，无需配置RPCHook。
         // 如果实例类型为Serverless实例，则必须配置RPCHook。
         // DefaultMQPushConsumer consumer = new DefaultMQPushConsumer();
-        consumer.setNamespaceV2("rmq-cn-vc24046op09");
+        consumer.setNamespaceV2("rmq-cn-zqb424r7c02");
         // 使用VPC接入点时，无需配置RPCHook。
         // 如果实例类型为Serverless实例，则必须配置RPCHook。
         // DefaultMQProducer producer = new DefaultMQProducer();
@@ -47,14 +47,13 @@ public class RocketMQPushConsumer {
 
         // 设置为您从阿里云消息队列RocketMQ版控制台获取的接入点信息，类似“rmq-cn-XXXX.rmq.aliyuncs.com:8080”。
         // 注意！！！直接填写控制台提供的域名和端口即可，请勿添加http://或https://前缀标识，也不要用IP解析地址。
-        consumer.setNamesrvAddr("127.0.0.1:9876");
+        consumer.setNamesrvAddr("rmq-cn-zqb424r7c02.cn-beijing.rmq.aliyuncs.com:8080");
         // 设置为您在阿里云云消息队列 RocketMQ 版控制台上创建的Topic。
-        consumer.subscribe("TestT", "*");
+        consumer.subscribe("sink_topic", "*");
         consumer.registerMessageListener(new MessageListenerConcurrently() {
             @Override
             public ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> msgs,
                                                             ConsumeConcurrentlyContext context) {
-                System.out.println("RocketMQPushConsumer 接收到数据大小{} " + msgs.size());
                 msgs.forEach(item -> {
                     System.out.printf("%s -RocketMQPushConsumer Receive New Messages: %s %n",System.currentTimeMillis(), new String(item.getBody(), StandardCharsets.UTF_8));
                 });

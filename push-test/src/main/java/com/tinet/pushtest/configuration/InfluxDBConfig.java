@@ -25,10 +25,10 @@
 //
 //    @Bean
 //    public InfluxDB influxDB() {
-//        InfluxDB influxDB = InfluxDBFactory.connect(url, username, password);
-//        influxDB.setDatabase(database);
-//        influxDB.setRetentionPolicy("autogen"); // 设置默认的保留策略
-//        influxDB.enableBatch(500, 1000, TimeUnit.MILLISECONDS); // 启用批量写入（可选）
-//        return influxDB;
+////        InfluxDB influxDB = InfluxDBFactory.connect(url, username, password);
+////        influxDB.setDatabase(database);
+////        influxDB.setRetentionPolicy("autogen"); // 设置默认的保留策略
+////        influxDB.enableBatch(500, 1000, TimeUnit.MILLISECONDS); // 启用批量写入（可选）
+//        return null;
 //    }
 //}

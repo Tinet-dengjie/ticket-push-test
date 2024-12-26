@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tinet.pushtest.mapper.SessionMetricsMapper">
+
+    <resultMap id="BaseResultMap" type="com.tinet.pushtest.model.SessionMetrics">
+        <id column="id" property="id"/>
+        <result column="qno" property="qno"/>
+        <result column="cno" property="cno"/>
+        <result column="app" property="app"/>
+        <result column="realtime_session_count" property="realtime_session_count"/>
+        <result column="realtime_session_queued_count" property="realtime_session_queued_count"/>
+        <result column="realtime_session_assigned_count" property="realtime_session_assigned_count"/>
+        <result column="realtime_session_locked_count" property="realtime_session_locked_count"/>
+        <result column="realtime_session_robot_count" property="realtime_session_robot_count"/>
+    </resultMap>
+
+    <select id="selectByKeys" resultMap="BaseResultMap">
+        select * from session_metrics 
+        where qno = #{qno} and cno = #{cno} and app = #{app}
+    </select>
+</mapper> 

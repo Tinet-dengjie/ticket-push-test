@@ -72,6 +72,11 @@
                     <artifactId>postgresql</artifactId>
                 </dependency>
 <!--        <dependency>-->
+<!--            <groupId>com.aliyun.lindorm</groupId>-->
+<!--            <artifactId>lindorm-tsdb-client</artifactId>-->
+<!--            <version>1.0.4</version>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
 <!--            <groupId>org.influxdb</groupId>-->
 <!--            <artifactId>influxdb-java</artifactId>-->
 <!--            <version>2.23</version> &lt;!&ndash; 最新版本 &ndash;&gt;-->

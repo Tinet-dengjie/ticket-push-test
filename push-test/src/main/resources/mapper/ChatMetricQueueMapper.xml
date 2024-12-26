@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tinet.pushtest.mapper.ChatMetricQueueMapper">
+
+    <resultMap id="BaseResultMap" type="com.tinet.pushtest.model.ChatMetricQueue">
+        <id column="id" property="id"/>
+        <result column="enterprise_id" property="enterprise_id"/>
+        <result column="qno" property="qno"/>
+        <result column="real_time_sessions" property="real_time_sessions"/>
+        <result column="completed_sessions" property="completed_sessions"/>
+        <result column="real_time_reception_sessions" property="real_time_reception_sessions"/>
+        <result column="average_session_duration" property="average_session_duration"/>
+        <result column="real_time_queue_count" property="real_time_queue_count"/>
+        <result column="average_queue_access_duration" property="average_queue_access_duration"/>
+        <result column="queue_abandonment_count" property="queue_abandonment_count"/>
+        <result column="signed_in_agents_count" property="signed_in_agents_count"/>
+    </resultMap>
+
+    <select id="selectByEnterpriseAndQno" resultMap="BaseResultMap">
+        select * from chat_metric_queue 
+        where enterprise_id = #{enterpriseId} and qno = #{qno}
+    </select>
+
+    <insert id="insertOrUpdate">
+        INSERT INTO chat_metric_queue
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            enterprise_id, qno,
+            <if test="real_time_sessions != null">real_time_sessions,</if>
+            <if test="completed_sessions != null">completed_sessions,</if>
+            <if test="real_time_reception_sessions != null">real_time_reception_sessions,</if>
+            <if test="average_session_duration != null">average_session_duration,</if>
+            <if test="real_time_queue_count != null">real_time_queue_count,</if>
+            <if test="average_queue_access_duration != null">average_queue_access_duration,</if>
+            <if test="queue_abandonment_count != null">queue_abandonment_count,</if>
+            <if test="signed_in_agents_count != null">signed_in_agents_count,</if>
+        </trim>
+        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+            #{enterprise_id}, #{qno},
+            <if test="real_time_sessions != null">#{real_time_sessions},</if>
+            <if test="completed_sessions != null">#{completed_sessions},</if>
+            <if test="real_time_reception_sessions != null">#{real_time_reception_sessions},</if>
+            <if test="average_session_duration != null">#{average_session_duration},</if>
+            <if test="real_time_queue_count != null">#{real_time_queue_count},</if>
+            <if test="average_queue_access_duration != null">#{average_queue_access_duration},</if>
+            <if test="queue_abandonment_count != null">#{queue_abandonment_count},</if>
+            <if test="signed_in_agents_count != null">#{signed_in_agents_count},</if>
+        </trim>
+        ON CONFLICT (enterprise_id, qno) DO UPDATE
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="real_time_sessions != null">
+                real_time_sessions = chat_metric_queue.real_time_sessions + #{real_time_sessions},
+            </if>
+            <if test="completed_sessions != null">
+                completed_sessions = chat_metric_queue.completed_sessions + #{completed_sessions},
+            </if>
+            <if test="real_time_reception_sessions != null">
+                real_time_reception_sessions = chat_metric_queue.real_time_reception_sessions + #{real_time_reception_sessions},
+            </if>
+            <if test="average_session_duration != null">
+                average_session_duration = #{average_session_duration},
+            </if>
+            <if test="real_time_queue_count != null">
+                real_time_queue_count = chat_metric_queue.real_time_queue_count + #{real_time_queue_count},
+            </if>
+            <if test="average_queue_access_duration != null">
+                average_queue_access_duration = #{average_queue_access_duration},
+            </if>
+            <if test="queue_abandonment_count != null">
+                queue_abandonment_count = chat_metric_queue.queue_abandonment_count + #{queue_abandonment_count},
+            </if>
+            <if test="signed_in_agents_count != null">
+                signed_in_agents_count = chat_metric_queue.signed_in_agents_count + #{signed_in_agents_count}
+            </if>
+        </trim>
+    </insert>
+</mapper> 

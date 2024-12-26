@@ -2,32 +2,55 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.tinet.pushtest.mapper.ReceptionRecordsMapper">
 
+    <resultMap id="BaseResultMap" type="com.tinet.pushtest.model.ReceptionRecords">
+        <result column="qno" property="qno"/>
+        <result column="app" property="app"/>
+        <result column="cno" property="cno"/>
+        <result column="cno" property="cno"/>
+        <result column="event" property="event"/>
+        <result column="queue_abort" property="queue_abort"/>
+        <result column="queue_duration" property="queue_duration"/>
+        <result column="session_duration" property="session_duration"/>
+        <result column="session_complete" property="session_complete"/>
+        <result column="realtime_session_count" property="realtime_session_count"/>
+        <result column="realtime_session_queued_count" property="realtime_session_queued_count"/>
+        <result column="realtime_session_locked_count" property="realtime_session_locked_count"/>
+        <result column="realtime_session_assigned_count" property="realtime_session_assigned_count"/>
+        <result column="realtime_session_robot_count" property="realtime_session_robot_count"/>
+    </resultMap>
+
     <select id="simpleQuery" resultType="java.util.Map">
-        select sum(session_complete) as 会话完成数,
-               sum(queue_abort)      as 排队放弃数,
-               avg(queue_duration)   as 平均排队时长,
-               avg(session_duration) as 平均会话时长
+        select distinct
+                    sum(sum(session_complete) filter (where event in ('COMPLETED'))) over () as 总会话完成数,
+                    sum(sum(queue_abort) filter (where event in ('QUEUE_ABANDONED'))) over () as 总排队放弃数,
+                    avg(avg(queue_duration) filter (where event in ('ASSIGNED'))) over () as 总平均排队时长,
+                    avg(avg(session_duration) filter (where event in ('COMPLETED'))) over () as 总平均会话时长,
+                    sum(last(realtime_session_count, time) filter (where event in ('COMPLETED', 'STARTED'))) over () as 总实时会话数,
+                    sum(last(realtime_session_queued_count, time) filter (where event in ('QUEUED', 'QUEUE_ABANDONED'))) over () as 总实时排队数,
+                    sum(last(realtime_session_locked_count, time) filter (where event in ('LOCKED', 'UNLOCKED'))) over () as 总实时会话锁定数,
+                    sum(last(realtime_session_assigned_count, time) filter (where event in ('ASSIGNED', 'COMPLETED'))) over () as 总实时接待会话数,
+                    sum(last(realtime_session_robot_count, time) filter (where event in ('ROBOT_MANAGED', 'ROBOT_CANCELLED'))) over () as 总实时托管会话数
         from session_event_new
-        where enterprise_id = 8001678
-          and qno in (#{qno});
-    </select>
-    <select id="simpleQueryRealTime" resultType="java.util.Map">
-        select last(session_complete,time) as 会话完成数,
-               last(queue_abort,time)      as 排队放弃数,
-               last(queue_duration,time)   as 平均排队时长,
-               last(session_duration,time) as 平均会话时长
-        from session_event_new
-        where enterprise_id = 8001678
-          and qno in (#{qno});
+        where time >= now() - interval '1 day'
+          and enterprise_id = 8001678
+          and qno in (#{qno})
+        group by cno, qno, app;
     </select>
 
     <select id="complexQuery" resultType="java.lang.Long">
-        select sum(session_complete) as 会话完成数,
-        sum(queue_abort) as 排队放弃数,
-        avg(queue_duration) as 平均排队时长,
-        avg(session_duration) as 平均会话时长
+        select distinct
+        sum(sum(session_complete) filter (where event in ('COMPLETED'))) over () as 总会话完成数,
+        sum(sum(queue_abort) filter (where event in ('QUEUE_ABANDONED'))) over () as 总排队放弃数,
+        avg(avg(queue_duration) filter (where event in ('ASSIGNED'))) over () as 总平均排队时长,
+        avg(avg(session_duration) filter (where event in ('COMPLETED'))) over () as 总平均会话时长,
+        sum(last(realtime_session_count, time) filter (where event in ('COMPLETED', 'STARTED'))) over () as 总实时会话数,
+        sum(last(realtime_session_queued_count, time) filter (where event in ('QUEUED', 'QUEUE_ABANDONED'))) over () as 总实时排队数,
+        sum(last(realtime_session_locked_count, time) filter (where event in ('LOCKED', 'UNLOCKED'))) over () as 总实时会话锁定数,
+        sum(last(realtime_session_assigned_count, time) filter (where event in ('ASSIGNED', 'COMPLETED'))) over () as 总实时接待会话数,
+        sum(last(realtime_session_robot_count, time) filter (where event in ('ROBOT_MANAGED', 'ROBOT_CANCELLED'))) over () as 总实时托管会话数
         from session_event_new
-        where time >= now() - interval '1 d' and enterprise_id = 8001678
+        where time >= now() - interval '1 day'
+        and enterprise_id = 8001678
         and qno in
         <foreach collection="qnos" item="qno" open="(" separator="," close=")">
             #{qno}
@@ -36,21 +59,13 @@
         <foreach collection="cnos" item="cno" open="(" separator="," close=")">
             #{cno}
         </foreach>
+        group by cno, qno, app;
     </select>
-    <select id="complexQueryRealTime" resultType="java.lang.Long">
-        select last(session_complete,time) as 会话完成数,
-        last(queue_abort,time)      as 排队放弃数,
-        last(queue_duration,time)   as 平均排队时长,
-        last(session_duration,time) as 平均会话时长
-        from session_event_new
-        where time >= now() - interval '1 d' and enterprise_id = 8001678
-        and qno in
-        <foreach collection="qnos" item="qno" open="(" separator="," close=")">
-            #{qno}
-        </foreach>
-        and cno in
-        <foreach collection="cnos" item="cno" open="(" separator="," close=")">
-            #{cno}
-        </foreach>
+
+    <select id="listByPage" resultMap="BaseResultMap">
+        select *
+        from session_event_new order by time asc
+        limit #{size} offset #{offset}
     </select>
+
 </mapper>

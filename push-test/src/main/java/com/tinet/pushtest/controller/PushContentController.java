@@ -1,7 +1,8 @@
 package com.tinet.pushtest.controller;
 
+//import com.tinet.pushtest.service.DataCopyService;
 import com.tinet.pushtest.service.QueryMetricsService;
-import com.tinet.pushtest.service.Run;
+//import com.tinet.pushtest.service.Run;
 import com.tinet.pushtest.service.SqlRun;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.annotations.Param;
@@ -26,8 +27,8 @@ import java.util.concurrent.atomic.AtomicLong;
 @Slf4j
 public class PushContentController {
 //
-    @Autowired
-    private Run run;
+//    @Autowired
+//    private Run run;
     @Autowired
     private SqlRun sqlRun;
     public static String pushCpntent = "暂无数据";
@@ -36,6 +37,9 @@ public class PushContentController {
     AtomicLong atomicLong = new AtomicLong(0);
     @Autowired
     private TestService testService;
+
+//    @Autowired
+//    private DataCopyService dataCopyService;
 
     @Autowired
     private ThreadPoolTaskExecutor threadPoolTaskExecutor;
@@ -72,7 +76,7 @@ public class PushContentController {
 
     @GetMapping("/doWriteData")
     public void doWriteData() {
-        run.doWrite();
+//        run.doWrite();
     }
 
     @GetMapping("/doSimpleQuery")
@@ -87,15 +91,9 @@ public class PushContentController {
         sqlRun.complexQuery(run);
     }
 
-    @GetMapping("/doSimpleQueryReal")
-    public void doSimpleQueryReal(@Param("run") boolean run) {
-        QueryMetricsService.reset();
-        sqlRun.simpleQueryRealTime(run);
+    @GetMapping("/copyData")
+    public void copyData(@Param("run") boolean run) {
+//        dataCopyService.copyData();
     }
 
-    @GetMapping("/doComplexQueryReal")
-    public void doComplexQueryReal(@Param("run") boolean run) {
-        QueryMetricsService.reset();
-        sqlRun.complexQueryRealTime(run);
-    }
 }

@@ -27,13 +27,13 @@ public class RocketMQProducer {
      * 如果实例类型为Serverless实例，公网访问必须设置实例的用户名密码，当开启内网免身份识别时，内网访问可以不设置用户名和密码。
      */
     private static RPCHook getAclRPCHook() {
-        return new AclClientRPCHook(new SessionCredentials("3ppQMwZgV0FJW03Q", "25s5j5TJIyncAg5f"));
+        return new AclClientRPCHook(new SessionCredentials("8Is3hW0b0ipC6i0o", "49YT4viNZQa57cEG"));
     }
 
     public static void main(String[] args) throws MQClientException {
         // 使用公网接入点时，需要配置RPCHook。
         DefaultMQProducer producer = new DefaultMQProducer(getAclRPCHook());
-        producer.setNamespaceV2("rmq-cn-vc24046op09");
+        producer.setNamespaceV2("rmq-cn-zqb424r7c02");
         // 使用VPC接入点时，无需配置RPCHook。
         // 如果实例类型为Serverless实例，则必须配置RPCHook。
         // DefaultMQProducer producer = new DefaultMQProducer();
@@ -48,7 +48,7 @@ public class RocketMQProducer {
 
         // 设置为您从阿里云消息队列RocketMQ版控制台获取的接入点信息，类似“rmq-cn-XXXX.rmq.aliyuncs.com:8080”。
         // 注意！！！直接填写控制台提供的域名和端口即可，请勿添加http://或https://前缀标识，也不要用IP解析地址。
-        producer.setNamesrvAddr("127.0.0.1:9876");
+        producer.setNamesrvAddr("rmq-cn-zqb424r7c02.cn-beijing.rmq.aliyuncs.com:8080");
         producer.start();
 
         String json = "{\"name\":\"\",\"id\":\"123\",\"data\":{\n" +
@@ -83,11 +83,11 @@ public class RocketMQProducer {
                 "    \"score\": 0 \n" +
                 "}}";
         System.out.println(json);
-        Thread.ofVirtual().start(() -> {
+//        Thread.ofVirtual().start(() -> {
             System.out.println("start" + LocalDateTime.now().format(formatter));
-            while (atomicLong.get() < total) {
+//            while (atomicLong.get() < total) {
                 try {
-                    Message msg = new Message("CHAT",
+                    Message msg = new Message("flinkTopic",
                             "CURL_EVENT",
                             json.getBytes(RemotingHelper.DEFAULT_CHARSET));
                     SendResult sendResult = producer.send(msg);
@@ -97,9 +97,9 @@ public class RocketMQProducer {
                     System.out.println(new Date() + " Send mq message failed.");
                     e.printStackTrace();
                 }
-            }
+//            }
             System.out.println("end" + LocalDateTime.now().format(formatter)+"-"+atomicLong.get());
-        });
+//        });
 
 
         // 在应用退出前，销毁Producer对象。

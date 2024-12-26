@@ -14,7 +14,7 @@ public class QueryMetricsService {
     private static final AtomicLong queryCount = new AtomicLong(0);
     private static volatile long startTime = System.currentTimeMillis();
     private static final ConcurrentLinkedQueue<Double> latencies = new ConcurrentLinkedQueue<>();
-    private static final int MAX_LATENCY_SAMPLES = 120;
+    private static final int MAX_LATENCY_SAMPLES = 12000;
 
     public void recordLatency(double latencySeconds) {
         queryCount.incrementAndGet();

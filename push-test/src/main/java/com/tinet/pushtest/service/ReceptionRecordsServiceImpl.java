@@ -6,6 +6,8 @@ import com.tinet.pushtest.model.ReceptionRecords;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * <p>
  * 服务实现类
@@ -23,15 +25,13 @@ public class ReceptionRecordsServiceImpl extends ServiceImpl<ReceptionRecordsMap
         baseMapper.simpleQuery(qno);
         return 0;
     }
-    public long simpleQueryRealTime(String qno) {
-        baseMapper.simpleQueryRealTime(qno);
-        return 0;
-    }
+
 
     public long complexQuery(String[] qnos, String[] cnos) {
         return receptionRecordsMapper.complexQuery(qnos, cnos);
     }
-    public long complexQueryRealtime(String[] qnos, String[] cnos) {
-        return receptionRecordsMapper.complexQueryRealTime(qnos, cnos);
+
+    public List<ReceptionRecords> listByPage(int current, int i) {
+       return baseMapper.listByPage(current, i);
     }
 }
